@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Reservation System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2.5em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+
+    .resource-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .resource-item h3 {
+      color: #333;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+
+    .resource-item p {
+      color: #666;
+      font-size: 0.9em;
+      margin: 3px 0;
+    }
+
+    .price-highlight {
+      color: #667eea;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    label {
+      color: #333;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    input, select {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #764ba2;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 15px;
+      color: #004085;
+    }
+
+    .error-box {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 15px;
+      color: #721c24;
+      display: none;
+    }
+
+    .error-box.show {
+      display: block;
+    }
+
+    .success-box {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 15px;
+      color: #155724;
+      display: none;
+    }
+
+    .success-box.show {
+      display: block;
+    }
+
+    .booking-list {
+      margin-top: 20px;
+    }
+
+    .booking-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 4px solid #28a745;
+    }
+
+    .booking-item h4 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .booking-item p {
+      color: #666;
+      font-size: 0.9em;
+      margin: 3px 0;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 0.8em;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .status-confirmed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏨 Hotel Reservation System</h1>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Available Resources</h2>
+        <div data-testid="resource-list" id="resources"></div>
+      </div>
+
+      <div class="card">
+        <h2>Make a Booking</h2>
+        <form id="bookingForm">
+          <label for="resourceSelect">Select Resource:</label>
+          <select id="resourceSelect" data-testid="resource-select" required>
+            <option value="">Choose a resource...</option>
+          </select>
+
+          <label for="guestName">Guest Name:</label>
+          <input type="text" id="guestName" data-testid="guest-name" required>
+
+          <label for="guestEmail">Email:</label>
+          <input type="email" id="guestEmail" data-testid="guest-email" required>
+
+          <label for="checkIn">Check-In:</label>
+          <input type="date" id="checkIn" data-testid="check-in" required>
+
+          <label for="checkOut">Check-Out:</label>
+          <input type="date" id="checkOut" data-testid="check-out" required>
+
+          <label for="numGuests">Number of Guests:</label>
+          <input type="number" id="numGuests" data-testid="num-guests" min="1" value="1">
+
+          <button type="button" id="calculateBtn" data-testid="calculate-price-btn">Calculate Price</button>
+          <button type="submit" id="createBtn" data-testid="create-booking-btn">Create Booking</button>
+        </form>
+
+        <div class="info-box" id="priceInfo" style="display: none;">
+          <strong>Price Breakdown:</strong><br>
+          Base Price: $<span id="basePrice">0</span><br>
+          Discount: -$<span id="discount">0</span><br>
+          <strong>Total: $<span id="totalPrice" data-testid="total-price">0</span></strong>
+        </div>
+
+        <div class="error-box" id="errorBox" data-testid="error-message"></div>
+        <div class="success-box" id="successBox" data-testid="booking-confirmation"></div>
+      </div>
+
+      <div class="card">
+        <h2>Recent Bookings</h2>
+        <div id="bookingsList" class="booking-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    let currentPricing = null;
+
+    async function loadResources() {
+      try {
+        const response = await fetch(`${API_BASE}/resources`);
+        const resources = await response.json();
+
+        const resourceList = document.getElementById('resources');
+        resourceList.innerHTML = '';
+
+        const select = document.getElementById('resourceSelect');
+        select.innerHTML = '<option value="">Choose a resource...</option>';
+
+        resources.forEach(resource => {
+          const div = document.createElement('div');
+          div.className = 'resource-item';
+          div.innerHTML = `
+            <h3>${resource.name}</h3>
+            <p>Type: ${resource.type}</p>
+            <p>Capacity: ${resource.capacity}</p>
+            <p class="price-highlight">$${resource.hourly_rate} per night</p>
+          `;
+          resourceList.appendChild(div);
+
+          const option = document.createElement('option');
+          option.value = resource.id;
+          option.textContent = `${resource.name} - $${resource.hourly_rate}/night`;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        showError('Failed to load resources: ' + error.message);
+      }
+    }
+
+    async function calculatePrice() {
+      const resourceId = document.getElementById('resourceSelect').value;
+      const checkIn = document.getElementById('checkIn').value;
+      const checkOut = document.getElementById('checkOut').value;
+      const numGuests = parseInt(document.getElementById('numGuests').value) || 1;
+
+      if (!resourceId || !checkIn || !checkOut) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/price/calculate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resourceId: parseInt(resourceId),
+            checkIn: new Date(checkIn).toISOString(),
+            checkOut: new Date(checkOut).toISOString(),
+            numGuests
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error);
+        }
+
+        currentPricing = await response.json();
+        document.getElementById('basePrice').textContent = currentPricing.basePrice.toFixed(2);
+        document.getElementById('discount').textContent = currentPricing.discount.toFixed(2);
+        document.getElementById('totalPrice').textContent = currentPricing.totalPrice.toFixed(2);
+        document.getElementById('priceInfo').style.display = 'block';
+        clearErrors();
+      } catch (error) {
+        showError('Price calculation failed: ' + error.message);
+      }
+    }
+
+    async function createBooking(e) {
+      e.preventDefault();
+
+      const resourceId = document.getElementById('resourceSelect').value;
+      const guestName = document.getElementById('guestName').value;
+      const guestEmail = document.getElementById('guestEmail').value;
+      const checkIn = document.getElementById('checkIn').value;
+      const checkOut = document.getElementById('checkOut').value;
+      const numGuests = parseInt(document.getElementById('numGuests').value) || 1;
+
+      if (!resourceId || !guestName || !guestEmail || !checkIn || !checkOut) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resourceId: parseInt(resourceId),
+            guestName,
+            guestEmail,
+            checkIn: new Date(checkIn).toISOString(),
+            checkOut: new Date(checkOut).toISOString(),
+            numGuests
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error);
+        }
+
+        const booking = await response.json();
+        showSuccess(`Booking created! ID: ${booking.id}, Total: $${booking.totalPrice.toFixed(2)}`);
+        document.getElementById('bookingForm').reset();
+        document.getElementById('priceInfo').style.display = 'none';
+        loadBookings();
+      } catch (error) {
+        showError('Booking failed: ' + error.message);
+      }
+    }
+
+    async function loadBookings() {
+      try {
+        const response = await fetch(`${API_BASE}/bookings`);
+        const bookings = await response.json();
+
+        const bookingsList = document.getElementById('bookingsList');
+        bookingsList.innerHTML = '';
+
+        if (bookings.length === 0) {
+          bookingsList.innerHTML = '<p style="color: #666;">No bookings yet</p>';
+          return;
+        }
+
+        bookings.slice(0, 5).forEach(booking => {
+          const div = document.createElement('div');
+          div.className = 'booking-item';
+          div.setAttribute('data-testid', 'booking-row');
+          const checkInDate = new Date(booking.check_in).toLocaleDateString();
+          const checkOutDate = new Date(booking.check_out).toLocaleDateString();
+          div.innerHTML = `
+            <h4>${booking.guest_name}</h4>
+            <p>Email: ${booking.guest_email}</p>
+            <p>Check-In: ${checkInDate}</p>
+            <p>Check-Out: ${checkOutDate}</p>
+            <p>Total: $${booking.total_price.toFixed(2)}</p>
+            <span class="status-badge status-${booking.status.toLowerCase()}">${booking.status}</span>
+          `;
+          bookingsList.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Failed to load bookings:', error);
+      }
+    }
+
+    function showError(message) {
+      const errorBox = document.getElementById('errorBox');
+      errorBox.textContent = message;
+      errorBox.classList.add('show');
+      document.getElementById('successBox').classList.remove('show');
+    }
+
+    function showSuccess(message) {
+      const successBox = document.getElementById('successBox');
+      successBox.textContent = message;
+      successBox.classList.add('show');
+      document.getElementById('errorBox').classList.remove('show');
+    }
+
+    function clearErrors() {
+      document.getElementById('errorBox').classList.remove('show');
+      document.getElementById('successBox').classList.remove('show');
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', createBooking);
+    document.getElementById('calculateBtn').addEventListener('click', calculatePrice);
+
+    loadResources();
+    loadBookings();
+    setInterval(loadBookings, 10000);
+  </script>
+</body>
+</html>

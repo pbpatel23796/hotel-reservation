@@ -1,0 +1,39 @@
+{
+  "name": "hotel-reservation",
+  "version": "0.1.0",
+  "description": "A hotel reservation system",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "lint": "eslint src tests"
+  },
+  "keywords": [
+    "hotel",
+    "reservation",
+    "booking",
+    "system"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.5",
+    "@playwright/test": "^1.40.1",
+    "eslint": "^8.54.0",
+    "@eslint/js": "^8.54.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
