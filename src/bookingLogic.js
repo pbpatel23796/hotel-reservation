@@ -3,8 +3,8 @@ import db from './db.js';
 const CANCELLATION_FEE_PERCENT = 15;
 
 export function checkAvailability(resourceId, checkIn, checkOut) {
-  const checkInDate = new Date(checkIn);
-  const checkOutDate = new Date(checkOut);
+  const checkInDate = new Date(checkIn).toISOString();
+  const checkOutDate = new Date(checkOut).toISOString();
 
   const conflicts = db.prepare(`
     SELECT COUNT(*) as count FROM bookings
@@ -165,7 +165,7 @@ export function getAvailableDates(resourceId, startDate, endDate) {
     SELECT check_in, check_out FROM bookings
     WHERE resource_id = ? AND status = 'confirmed'
       AND check_in < ? AND check_out > ?
-  `).all(resourceId, end, start);
+  `).all(resourceId, end.toISOString(), start.toISOString());
 
   const available = [];
   let current = new Date(start);
